@@ -1,0 +1,19 @@
+
+#!/bin/bash
+
+stack_state=($(curl -s -u "secret:secret" 'http://ip:8080/v2-beta/projects/1a5/services?name=name_service' | jq '.data[] .state' | sed 's/"//g'))
+
+stack_healthstate=($(curl -s -u "secret:secret" 'http://ip:8080/v2-beta/projects/1a5/services?name=name_service' | jq '.data[] .healthState' | sed 's/"//g'))
+
+if [ $stack_state 2> /dev/null = "active" ] && [ $stack_healthstate 2> /dev/null = "unhealthy" ]
+  then
+    echo "0" #unhealthy
+  elif [ $stack_state 2> /dev/null = "inactive" ]
+    then   
+      echo "1" #inactive 
+  elif [ $stack_state 2> /dev/null = "active" ] && [ $stack_healthstate 2> /dev/null = "healthy" ]
+    then
+      echo "2" #active
+  else
+    echo "3" #unknown
+fi
